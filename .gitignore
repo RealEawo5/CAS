@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# But don't ignore these files
+!main.py
+!cas.py
+!updater.py
+
+# Don't ignore .gitignore file
+!.gitignore
