@@ -8,6 +8,7 @@ updater.checkUpdates()
 # Run the program
 while True:
     exitCode = cas.calculate()
-    
+
     if not exitCode:
         break
+    

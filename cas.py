@@ -21,6 +21,7 @@ placeholderDictionary = {
     "&&": "="
 }
 
+
 for character in characters:
     # // characterDictionary[character.upper()] = character
     exec(f"{character} = Symbol(\"{character}\")")
