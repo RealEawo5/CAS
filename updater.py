@@ -27,6 +27,8 @@ def checkUpdates():
         # Restart the application
         subprocess.Popen(['cas.exe'])
         sys.exit()
+    else:
+        print('Latest version installed')
 
 
 def isNewRelease(LATEST_VERSION, CURRENT_VERSION):
