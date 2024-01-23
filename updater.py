@@ -12,7 +12,7 @@ def checkUpdates():
     response = requests.get('https://api.github.com/repos/realeawo5/CAS/releases/latest')
     LATEST_VERSION = response.json()['tag_name']
 
-    if isNewLocalRelease(LATEST_VERSION, CURRENT_VERSION):
+    if isNewRelease(LATEST_VERSION, CURRENT_VERSION):
         print('Update available. Updating now...')
         downloadUrl = response.json()['assets'][0]['browser_download_url']
         response = requests.get(downloadUrl, stream=True)
