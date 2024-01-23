@@ -9,7 +9,7 @@ import sys
 import os
 
 
-CURRENT_VERSION = 'v1.1.2'
+CURRENT_VERSION = 'v1.1.3'
 
 
 def downloadUpdate(downloadURL):
