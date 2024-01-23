@@ -74,17 +74,6 @@ def isNewUpdate(LATEST_VERSION, CURRENT_VERSION):
 
 
 if __name__ == '__main__':
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--install', action='store_true', help='Install update')
-    args = parser.parse_args()
-
-    if args.install:
-        installUpdate()
-
-        sys.exit()
-    """    
-
     LATEST_VERSION = requests.get('https://api.github.com/repos/realeawo5/CAS/releases/latest').json()['tag_name']
 
     print(isNewRelease(LATEST_VERSION, CURRENT_VERSION), end=":")
