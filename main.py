@@ -1,10 +1,6 @@
 import argparse
 import sys
 
-import updater
-import cas
-
-
 # Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--version', action='store_true', help='Program version')
@@ -14,6 +10,11 @@ if args.version:
     print(updater.CURRENT_VERSION)
 
     sys.exit()
+
+
+# Import modules
+import updater
+import cas
     
 
 # Check for updates
