@@ -3,7 +3,7 @@ import cas
 
 
 # Check for updates
-updater.checkUpdates()
+updater.checkForUpdates()
 
 # Run the program
 while True:
