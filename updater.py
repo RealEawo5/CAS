@@ -5,7 +5,7 @@ import sys
 import subprocess
 
 
-CURRENT_VERSION = 'v1.1.0'
+CURRENT_VERSION = 'v1.1.1'
 
 
 def checkUpdates():
