@@ -24,7 +24,7 @@ placeholderDictionary = {
 
 for character in characters:
     # // characterDictionary[character.upper()] = character
-    exec(f"{character} = Symbol(\"{character}\")")
+    exec(f"{character} = Symbol(\"{character}\")", globals())
 
 # Variable to solve for, set "" for any
 solveFor = ""

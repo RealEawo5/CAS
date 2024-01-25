@@ -1,24 +1,30 @@
+# Import updater
+import updater
+
 import argparse
 import sys
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--version', action='store_true', help='Program version')
+parser.add_argument('--updater-install', action='store_true', help='Install new updates running as the program updater')
 args = parser.parse_args()
 
 if args.version:
     print(updater.CURRENT_VERSION)
-
     sys.exit()
 
+if args.updater_install:
+    updater.installUpdate()
 
-# Import modules
-import updater
-import cas
-    
 
 # Check for updates
 updater.checkForUpdates()
+
+
+# Import modules
+import cas
+
 
 # Run the program
 while True:

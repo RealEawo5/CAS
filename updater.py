@@ -3,24 +3,30 @@ import multiprocessing
 import subprocess
 import requests
 import argparse
+import shutil
 import psutil
 import time
 import sys
 import os
 
 
-CURRENT_VERSION = 'v1.1.3'
+CURRENT_VERSION = 'v1.2.0'
 
 
 def downloadUpdate(downloadURL):
     response = requests.get(downloadURL, stream=True)
+
     with open('new-cas.exe', 'wb') as f:
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    installProcess = multiprocessing.Process(target=installUpdate)
-    installProcess.start()
+
+    createNewUpdater()
+
+    # installProcess = multiprocessing.Process(target=installUpdate)
+    # installProcess.start()
+    subprocess.Popen(['updater.exe', '--updater-install'])
 
     sys.exit()
 
@@ -31,6 +37,9 @@ def installUpdate():
         time.sleep(1)
 
     print('Installing update...')
+
+    # Rename the current .exe
+    os.rename('cas.exe', 'old-cas.exe')
     
     # Replace the current .exe with the new one
     os.rename('new-cas.exe', 'cas.exe')
@@ -38,6 +47,10 @@ def installUpdate():
     # Restart the application
     subprocess.Popen(['cas.exe'])
     sys.exit()
+
+
+def createNewUpdater():
+    shutil.copyfile('upd-cas.exe', 'updater.exe')
 
 
 def checkForUpdates():
