@@ -8,6 +8,7 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('--version', action='store_true', help='Program version')
 parser.add_argument('--updater-install', action='store_true', help='Install new updates running as the program updater')
+parser.add_argument('--updater-cleanup', action='store_true', help='Clean up after installing updates')
 args = parser.parse_args()
 
 if args.version:
@@ -16,6 +17,9 @@ if args.version:
 
 if args.updater_install:
     updater.installUpdate()
+
+if args.updater_cleanup:
+    updater.cleanUpInstall()
 
 
 # Check for updates

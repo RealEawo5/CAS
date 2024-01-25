@@ -10,7 +10,7 @@ import sys
 import os
 
 
-CURRENT_VERSION = 'v1.2.0'
+CURRENT_VERSION = 'v1.2.1'
 
 
 def downloadUpdate(downloadURL):
@@ -24,9 +24,7 @@ def downloadUpdate(downloadURL):
 
     createNewUpdater()
 
-    # installProcess = multiprocessing.Process(target=installUpdate)
-    # installProcess.start()
-    subprocess.Popen(['updater.exe', '--updater-install'])
+    subprocess.Popen(['updater-cas.exe', '--updater-install'])
 
     sys.exit()
 
@@ -45,12 +43,27 @@ def installUpdate():
     os.rename('new-cas.exe', 'cas.exe')
 
     # Restart the application
-    subprocess.Popen(['cas.exe'])
+    subprocess.Popen(['cas.exe', '--updater-cleanup'])
     sys.exit()
 
 
+def cleanUpInstall():
+    # Wait for updater.exe to exit
+    while 'updater-cas.exe' in (p.name() for p in psutil.process_iter()):
+        time.sleep(1)
+
+    print('Cleaning up...')
+
+    # Delete the updater
+    os.remove('updater-cas.exe')
+
+    # Delete the old .exe
+    os.remove('old-cas.exe')
+
+    
+
 def createNewUpdater():
-    shutil.copyfile('upd-cas.exe', 'updater.exe')
+    shutil.copyfile('new-cas.exe', 'updater-cas.exe')
 
 
 def checkForUpdates():
