@@ -1,71 +1,69 @@
 from sympy.solvers import solve
 from itertools import chain
 from sympy import *
+import builtins
 
-
-characters = [chr(i) for i in chain(range(65, 90+1), range(97, 122+1))]
-
-characters.remove("E")  # Remove the letter "E" so that Euler's number doesn't get overwritten
-characters.remove("I")  # Remove the letter "I" so that the imaginary number doesn't get overwritten
-
-syntaxDictionary = {
-    ">=": ">%",
-    "<=": "<$",
-    "eval=": "evaluate&&",
-    "evaluate=": "evaluate&&"
-}
-
-placeholderDictionary = {
-    ">%": ">=",
-    "<$": "<=",
-    "&&": "="
-}
-
-
-for character in characters:
-    # // characterDictionary[character.upper()] = character
-    exec(f"{character} = Symbol(\"{character}\")", globals())
-
-# Variable to solve for, set "" for any
-solveFor = ""
 
 def calculate():
-    inputEquation = input("Equation: ").replace("^", "**")  # Replace the exponent character, with the python syntax exponent
+    __displayVariableTable()
+
+    inputEquation = input("Equation: ")
 
     if inputEquation == "":
         return 0
 
-    # for i in characterDictionary.keys():
-    #    inputEquation = inputEquation.replace(i, characterDictionary[i])
-
-    # Parse syntax
+    # * Parse syntax
     for key, value in syntaxDictionary.items():
         inputEquation = inputEquation.replace(key, value)
 
 
-    # Solve for
+    # * Solve for, Multicharacter variables, & Variable assignment
     solveFor = ""
     solveForGenerator = iter(list(inputEquation))
 
-    index = 0
+    bucketIndex = 0
+    iteration = 0
+    
     variables = [""]
 
+    assignmentOperatorIndex = inputEquation.find(":=")
+    assignNewVariable = False
+    
+
+    # Sort the equation into variables
     while True:
         character = next(solveForGenerator, None)
 
         if character == None:
             break
+        
+        
+        # This if statement is a bit of a mess, so here: 
+        # - The first two checks are to see if the character is an assignment operator
+        # - The third check removes all empty strings and duplicate variables temporarily from the list, 
+        #   so that it can check to see if there is only one variable before the assignment operator 
+        # - The fourth check makes sure we don't overwrite any keywords, variables, or functions 
+        #   that aren't previously assigned variables or the characters list
+        if character == ":" and iteration == assignmentOperatorIndex and len(set(variables) - {""}) == 1 and not __nameExists(variables[0]):
+            assignNewVariable = True
 
-        if character.isalpha() or character == "_":
-            variables[index] += character
+            solveFor = variables[0]
+            inputEquation = inputEquation.replace(":=", "=")
+            
+        if character.isalpha() or character == "_" or (character.isdigit() and variables[bucketIndex] != ""):
+            variables[bucketIndex] += character
         else:
-            index += 1
+            bucketIndex += 1
             variables.append("")
+        
+        iteration += 1
 
     upperCaseVariables = [cache for cache in variables if cache not in ["E", "I", ""] and cache.replace("_", "").isupper()]
+    # // multiCharacterVariables = [cache for cache in variables if not __nameExists(cache) and not cache == ""]
 
-    if not upperCaseVariables == []:
+    if not upperCaseVariables == [] and not assignNewVariable:
         solveFor = upperCaseVariables[0]
+
 
     # Split and sort the equation, if it contains an "equal" sign
     try:
@@ -80,11 +78,193 @@ def calculate():
     # Replace syntax placeholders
     for key, value in placeholderDictionary.items():
         equation = equation.replace(key, value)
-    
+
     try:
-        print(f"{solveFor}: {solve(eval(equation), solveFor)}\n" if not solveFor == "" else f"Solution: {solve(eval(equation), dict=True)}\n")
+        # // print(f"{solveFor}: {solve(eval(equation), solveFor)}\n" if not solveFor == "" else f"Solution: {solve(eval(equation), dict=True)}\n")
+        
+        # // TODO: Implement variable assignment here
+
+        if not solveFor == "":
+            if assignNewVariable:
+                # Make all assigned variables into sympy symbols so that they can be used in the equation without representing soulutions when a new variable is assigned
+                for variable in assignedVariables.keys():
+                    # // exec(f"{variable} = Symbol(\"{variable}\")", globals())
+                    __initializeVariable(variable)
+
+                # // exec(f"{solveFor} = Symbol(\"{solveFor}\")", globals())
+                __initializeVariable(solveFor)
+
+            parsedEquation = eval(equation)
+
+            # Check if the equation is a function call, and handle it accordingly
+            if type(parsedEquation) == dict and "func" in parsedEquation.keys():
+                if parsedEquation["func"] == "remvar":
+                    print(parsedEquation["message"])
+                    return 1
+
+
+            solutions = solve(parsedEquation, solveFor)
+
+            if assignNewVariable:
+                if len(solutions) > 1:
+                    __index = 0
+                    __solutionIterator = iter(solutions)
+                    __solution = next(__solutionIterator, None)
+                    while True:
+                        if __solution == None:
+                            break
+
+                        variableName = f"{solveFor}_{__index}"
+                        __index += 1
+
+                        # TODO: Fix so that previously assigned variables are not overwritten
+                        if __nameExists(variableName) or variableName in assignedVariables.keys() :
+                            continue
+
+
+                        assignedVariables[variableName] = __solution
+
+                        __solution = next(__solutionIterator, None)
+
+                else:
+                    assignedVariables[solveFor] = solutions[0]
+
+                # Reassign all assigned variables to their solutions
+                __reassignVariables()
+
+                return 1
+            
+            print(f"{solveFor} = {solutions}\n")
+            return 1
+        else:
+            parsedEquation = eval(equation)
+
+            # // print(parsedEquation)
+            # // print(type(parsedEquation))
+            
+            # Check if the equation is a function call, and handle it accordingly
+            if type(parsedEquation) == dict and "func" in parsedEquation.keys():
+                if parsedEquation["func"] == "remvar":
+                    print(parsedEquation["message"])
+                    return 1
+                
+            # // print(parsedEquation)
+
+        print(f"Solution: {solve(parsedEquation, dict=True)}\n")
         return 1
     except Exception as exc:
+        if __DEBUG:
+            raise exc
+        
         print(f"[{str(exc.__class__)[8:-2]}] {str(exc).capitalize()}\n")
         return 1
 
+
+
+def __nameExists(name):
+    # Exclude previously assigned variables and the characters list as these can be overwritten
+    if name in assignedVariables or name in characters:
+        return False
+    
+    return name in globals() or hasattr(builtins, name)
+
+
+def __displayVariableTable():
+    if not assignedVariables:
+        return
+
+    print("\n[Variables]")
+    longestVariableName = max(map(len, assignedVariables.keys()))
+
+    for key, value in assignedVariables.items():
+        print(f"{key:<{longestVariableName + 1}}: {value}")
+    
+    print()
+
+
+def __initializeVariable(variable: str):
+    exec(f'{variable} = Symbol("{variable}")', globals())
+
+
+def __reassignVariables():
+    for variable in assignedVariables.keys():
+        exec(f"{variable} = {assignedVariables[variable]}", globals())
+
+
+def __functionAlias(names):
+    def functionDecotraor(function):
+        function.aliases = []
+
+        for name in names:
+            globals()[name] = function
+            function.aliases.append(name)
+
+        return function
+    return functionDecotraor
+
+
+def __setup():
+    global characters, syntaxDictionary, placeholderDictionary, solveFor, assignedVariables
+
+    characters = [chr(i) for i in chain(range(65, 90+1), range(97, 122+1))]
+
+    characters.remove("E")  # Remove the letter "E" so that Euler's number doesn't get overwritten
+    characters.remove("I")  # Remove the letter "I" so that the imaginary number doesn't get overwritten
+
+    syntaxDictionary = {
+        "^": "**",                      # Replace the exponent character, with the python syntax exponent character
+        ">=": ">%",
+        "<=": "<$",
+        "eval=": "evaluate&&",
+        "evaluate=": "evaluate&&"
+    }
+
+    placeholderDictionary = {
+        ">%": ">=",
+        "<$": "<=",
+        "&&": "="
+    }
+
+
+    for character in characters:
+        # // exec(f"{character} = Symbol(\"{character}\")", globals())
+        __initializeVariable(character)
+
+
+    # Variable to solve for, set "" for any
+    solveFor = ""
+
+    assignedVariables = {}
+
+
+@__functionAlias(names=["RemVar", "Remvar", "remVar", "remvar"])
+def removeVariable(variable: str):
+    if variable in assignedVariables:
+        del assignedVariables[variable]
+        del globals()[variable]
+
+        # Incase the variable is single character, re-initialize it
+        if len(variable) == 1:
+            __initializeVariable(variable)
+
+        # TODO: Re-assign all assigned variables to update their solutions
+        __reassignVariables()
+
+        return {"func": "remvar", "status": True, "message": f'Variable "{variable}" removed\n'}
+    
+    return {"func": "remvar", "status": False, "message": f'Variable "{variable}" does not exist\n'}
+
+
+if __name__ == "__main__":
+    __DEBUG = True
+    __setup()
+
+    while True:
+        exitCode = calculate()
+
+        if not exitCode:
+            break
+    
+else:
+    __DEBUG = False
+    __setup()

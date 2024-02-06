@@ -30,6 +30,7 @@ updater.checkForUpdates()
 import cas
 
 
+
 # Run the program
 while True:
     exitCode = cas.calculate()
