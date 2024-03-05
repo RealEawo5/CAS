@@ -6,9 +6,14 @@ import sys
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
+
 parser.add_argument('--version', action='store_true', help='Program version')
+
 parser.add_argument('--updater-install', action='store_true', help='Install new updates running as the program updater')
 parser.add_argument('--updater-cleanup', action='store_true', help='Clean up after installing updates')
+
+# parser.add_argument('--api', action='store_true', help='Run the program in API mode')
+
 args = parser.parse_args()
 
 if args.version:
@@ -28,7 +33,6 @@ updater.checkForUpdates()
 
 # Import modules
 import cas
-
 
 
 # Run the program

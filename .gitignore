@@ -3,8 +3,13 @@
 
 # But don't ignore these files
 !main.py
-!cas.py
 !updater.py
+!cas.py
+
+!libs
+!libs/*
+
+libs/__pycache__
 
 # Don't ignore .gitignore file
 !.gitignore
