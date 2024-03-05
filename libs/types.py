@@ -1,4 +1,5 @@
 from sympy.simplify import simplify
+from sympy import Symbol, sympify, solve
 
 from itertools import zip_longest
 from typing import Iterable
@@ -18,6 +19,7 @@ class _Point:
     def __name__(self): return f"_Point"
     def __iter__(self): return iter(self.coordinates)
     def __len__(self) -> int: return self.shape
+    def _sympy_(self): return self
 
 
     # * Comparison
@@ -39,7 +41,7 @@ class _Point:
         elif isinstance(__other, (int, float)):
             return _Point(*tuple(simplify(f"({_1}) + ({__other})") for _1 in self))
 
-        return f"({self}) + ({__other})"
+        return sympify(f"({self}) + ({__other})")
     
     def __radd__(self, __other): return self + __other
 
@@ -51,7 +53,7 @@ class _Point:
         elif isinstance(__other, (int, float)):
             return _Point(*tuple(simplify(f"({_1}) - ({__other})") for _1 in self))
         
-        return f"({self}) - ({__other})"
+        return sympify(f"({self}) - ({__other})")
     
     def __rsub__(self, __other): return self - __other
     def __neg__(self): return _Point(*tuple(simplify(f"-({_1})") for _1 in self))
@@ -99,6 +101,7 @@ class _Vector:
     def __name__(self): return f"_Vector"
     def __iter__(self): return iter(self.vec)    
     def __len__(self) -> int: return self.shape
+    def _sympy_(self): return self
 
 
     # * Comparison
@@ -113,31 +116,46 @@ class _Vector:
     def isinverse(self, __other: object) -> bool: 
         if isinstance(__other, _Vector):
             return abs(self + __other) == 0
+        
+        raise TypeError(f"Expected a Vector, got {type(__other)}")
+        
+    def isparallel(self, __other: object) -> bool:
+        if isinstance(__other, _Vector):
+            solutions = solve(eval(f"{self} - ({__other} *  Symbol('scalar'))"))
+            return not (False == len(solutions))
+        
+        raise TypeError(f"Expected a Vector, got {type(__other)}")
+    
+    def isorthogonal(self, __other: object) -> bool:
+        if isinstance(__other, _Vector):
+            return self * __other == 0
+        
+        raise TypeError(f"Expected a Vector, got {type(__other)}")
     
 
     # * Arithmetic
     # Translation
     def __add__(self, __other):
-        if isinstance(__other, _Vector):
+        if isinstance(__other, (_Vector, _Point)):
             return _Vector(*tuple(simplify(f"({_1}) + ({_2})") for _1, _2 in zip_longest(self, __other, fillvalue=0)), start=self.start)
         elif isinstance(__other, (int, float)):
             # return _Vector(*tuple(simplify(f"({_1}) + ({__other})") for _1 in self))
             return _Vector(start=self.start, end=tuple(simplify(f"({_1}) + ({__other})") for _1 in self))
         
-        return f"({self}) + ({__other})"
+        return sympify(f"({self}) + ({__other})")
 
     def __radd__(self, __other): return self + __other
     
 
     # Displacement
     def __sub__(self, __other):
-        if isinstance(__other, _Vector):
+        if isinstance(__other, (_Vector, _Point)):
             return _Vector(*tuple(simplify(f"({_1}) - ({_2})") for _1, _2 in zip_longest(self, __other, fillvalue=0)), start=self.start)
         elif isinstance(__other, (int, float)):        
             # return _Vector(*tuple(simplify(f"({_1}) - ({__other})") for _1 in self))
             return _Vector(start=self.start, end=tuple(simplify(f"({_1}) - ({__other})") for _1 in self))
 
-        return f"({self}) - ({__other})"
+        return sympify(f"({self}) - ({__other})")
  
     def __rsub__(self, __other): return self - __other
     
