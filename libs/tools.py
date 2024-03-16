@@ -1,3 +1,6 @@
+LIST_TYPE = list().__class__
+DICT_TYPE = dict().__class__
+
 
 class NotSet:
     pass

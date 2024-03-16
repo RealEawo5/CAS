@@ -68,7 +68,7 @@ def calculate():
     # // multiCharacterVariables = [cache for cache in variables if not __nameExists(cache) and not cache == ""]
 
     if not upperCaseVariables == [] and not assignNewVariable:
-        solveFor = upperCaseVariables[0]
+        solveFor = upperCaseVariables
 
 
     # Split and sort the equation, if it contains an "equal" sign
@@ -159,7 +159,17 @@ def calculate():
 
                 return 1
             
-            print(f"{solveFor} = {solutions}\n")
+            # Print the solution
+            match type(solutions):
+                case tools.LIST_TYPE:
+                    if len(solveFor) == 1: print(f"{solveFor[0]} = {solutions}\n")
+                    else: print(f"{solveFor} = {solutions}\n")
+                case tools.DICT_TYPE:
+                    # print(F"Solution: {solutions}\n")
+                    print(f"{solutions}\n")
+                case _:
+                    print(f"{solveFor} = {solutions}\n")
+            
             return 1
         
         print(f"Solution: {solve(parsedEquation, dict=True)}\n")
