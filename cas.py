@@ -64,7 +64,7 @@ def calculate():
         
         iteration += 1
 
-    upperCaseVariables = [cache for cache in variables if cache not in ["E", "I", ""] and cache.replace("_", "").isupper()]
+    upperCaseVariables = [cache for cache in variables if cache not in ["E", "I", ""] and cache.replace("_", "").isupper() and not cache in assignedVariables.keys() ]
     # // multiCharacterVariables = [cache for cache in variables if not __nameExists(cache) and not cache == ""]
 
     if not upperCaseVariables == [] and not assignNewVariable:
