@@ -1,8 +1,8 @@
 from sympy.simplify import simplify
-from sympy import Symbol, sympify, solve
+from sympy import Symbol, sympify, solve, Eq
 
+from typing import Iterable, Tuple
 from itertools import zip_longest
-from typing import Iterable
 import libs.tools as tools
 
 
@@ -183,19 +183,43 @@ class NullVector(_Vector):
         super().__init__(*(0 for _ in range(shape)))
 
 
-# ! Deprecated
-# * Dot product
-@tools.alias(names=["Dot", "scalar", "Scalar"], globalsDict=globals())
-def __dot(vectorV: _Vector, vectorU: _Vector, angle: float = None, radians: bool = False):
-    """
-    Deprecated
-    """
-    if angle:
-        cosineValue = (f"cos({angle})" if radians else f"cos({angle} * pi / 180)")
 
-        return simplify(f"({abs(vectorV)}) * ({abs(vectorU)}) * ({cosineValue})")
+# TODO: MAJOR TODO - Implement the Function class
+# """
+@tools.alias(names=["function", "Func", "func"], globalsDict=globals())
+class Function:
+    def __init__(self, expression, *variables):
+        self.variables: Tuple[Symbol] = variables
+        self.expression = expression
     
-    return tuple(simplify(f"({_1}) * ({_2})") for _1, _2 in zip_longest(vectorV, vectorU, fillvalue=0))
+    def __str__(self): return f"Function({self.expression}, {', '.join(map(str, self.variables))})"
+    def _sympy_(self): return self.expression
+
+    def __call__(self, *values):
+        # If the number of values is less than the number of variables, extend the values list with the variables
+        if len(values) < len(self.variables):
+            values = (*values, *self.variables[len(values):])
+
+        return self.expression.subs({var: val for var, val in zip(self.variables, values)})
+
+"""
+    # * Arithmetic
+    def __add__(self, __other): Function(simplify(f"({self.expression}) + ({__other})"), *self.variables) # return simplify(f"({self}) + ({__other})")
+    def __radd__(self, __other): return self + __other
+    
+    def __sub__(self, __other): return Function(simplify(f"({self.expression}) - ({__other})"), *self.variables)
+    def __rsub__(self, __other): return self - __other
+    
+    def __mul__(self, __other): Function(simplify(f"({self.expression}) * ({__other})"), *self.variables)     # return sympify(f"({self}) * ({__other})")
+    def __rmul__(self, __other): return self * __other
+
+    def __truediv__(self, __other): return Function(simplify(f"({self.expression}) / ({__other})"), *self.variables)
+    def __rtruediv__(self, __other): return self / __other
+
+    def __neg__(self): return Function(sympify(f"-({self.expression})"), *self.variables)
+
+
+"""
 
 
 

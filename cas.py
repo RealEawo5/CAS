@@ -68,7 +68,7 @@ def calculate():
     # // multiCharacterVariables = [cache for cache in variables if not __nameExists(cache) and not cache == ""]
 
     if not upperCaseVariables == [] and not assignNewVariable:
-        solveFor = upperCaseVariables
+        solveFor = list(set(upperCaseVariables))
 
 
     # Split and sort the equation, if it contains an "equal" sign
@@ -108,10 +108,11 @@ def calculate():
         except:
             pass
         """
-
+        # print(f"Equation: {equation}")
         parsedEquation = eval(equation)
 
         # print(parsedEquation)
+        # print(type(parsedEquation))
         
 
         # Check if the equation is a function call, and handle it accordingly
@@ -121,11 +122,13 @@ def calculate():
                 return 1
 
 
+
         if not solveFor == "":
             # print(parsedEquation)
             solutions = solve(parsedEquation, solveFor)
 
             if assignNewVariable:
+                print(f"Solution: {solutions}\n")
                 if len(solutions) > 1:
                     __index = 0
                     __solutionIterator = iter(solutions)
